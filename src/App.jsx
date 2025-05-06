@@ -5,7 +5,8 @@ import Sidebar from './components/Sidebar/Sidebar';
 
 const AppContainer = styled.div`
   display: flex;
-  height: 100vh;
+  height: 98.5vh;
+  }
 `;
 
 const Main = styled.div`

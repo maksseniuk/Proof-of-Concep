@@ -21,7 +21,6 @@ const emojiMap = {
   obj1: '🪄',
   obj2: '🗄️',
   obj3: '🗄️',
-  obj4: '</>',
   obj5: '🗂️',
   obj6: '💼',
   obj7: '🗂️',
@@ -49,10 +48,11 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2', setExportHandler, setImport
       id: Date.now(),
       x,
       y,
-      width: 120,
-      height: 60,
+      width: 180,
+      height: 90,
       color: globalColor,
       type: 'rectangle',
+      label: `obj${elements.length + 1}`,
     };
     setElements([...elements, newElement]);
   };
@@ -246,23 +246,28 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2', setExportHandler, setImport
               <Line
                 key={conn.id}
                 points={conn.points}
-                stroke={globalColor}
+                stroke="#666" 
                 strokeWidth={2}
+                dash={[0, 0]}
+                lineCap="round"
+                lineJoin="round"
               />
             ))}
             {/* Render current connection being drawn */}
             {currentConnection && (
               <Line
                 points={currentConnection.points}
-                stroke={globalColor}
+                stroke="#666"
                 strokeWidth={2}
                 dash={[5, 5]}
+                lineCap="round"
+                lineJoin="round"
+                opacity={0.5}
               />
             )}
             {/* Render elements as cards with emoji and label */}
-            {elements.map((element, idx) => {
-              // Determine label (obj1, obj2, ...)
-              const label = element.label || `obj${idx + 1}`;
+            {elements.map((element) => {
+              const label = element.label;
               const emoji = getEmoji(label);
               return (
                 <Group
@@ -278,7 +283,7 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2', setExportHandler, setImport
                   <Rect
                     width={element.width}
                     height={element.height}
-                    fill={'#fff'}
+                    fill={ element.color}
                     stroke={selectedElement === element.id ? '#1976d2' : '#bbb'}
                     strokeWidth={selectedElement === element.id ? 3 : 1}
                     cornerRadius={10}
@@ -308,20 +313,11 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2', setExportHandler, setImport
                       fill="#444"
                     />
                   </Group>
-                  {/* Blue handles for selected */}
-                  {selectedElement === element.id && (
-                    <>
-                      {/* Top, Right, Bottom, Left handles */}
-                      <Circle x={element.width / 2} y={-10} radius={6} fill="#90c2ff" />
-                      <Circle x={element.width + 10} y={element.height / 2} radius={6} fill="#90c2ff" />
-                      <Circle x={element.width / 2} y={element.height + 10} radius={6} fill="#90c2ff" />
-                      <Circle x={-10} y={element.height / 2} radius={6} fill="#90c2ff" />
-                    </>
-                  )}
+      
                   <ConnectionPoints
                     element={element}
                     onConnectionStart={handleConnectionStart}
-                    isHovered={hoveredElement === element.id}
+                    isHovered={hoveredElement === element.id || selectedElement === element.id}
                   />
                 </Group>
               );
