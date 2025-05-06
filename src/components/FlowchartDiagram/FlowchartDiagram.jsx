@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Rect, Circle, Line, Group, Text } from 'react-konva';
+import { Stage, Layer, Rect, Circle, Line, Group, Text, Arrow } from 'react-konva';
 import styled from 'styled-components';
 import ConnectionPoints from './ConnectionPoints';
 
@@ -243,11 +243,14 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2', setExportHandler, setImport
           <Layer>
             {/* Render connections */}
             {connections.map((conn) => (
-              <Line
+              <Arrow
                 key={conn.id}
                 points={conn.points}
                 stroke="#666" 
                 strokeWidth={2}
+                fill="#666"
+                pointerLength={16}
+                pointerWidth={12}
                 dash={[0, 0]}
                 lineCap="round"
                 lineJoin="round"
@@ -255,10 +258,13 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2', setExportHandler, setImport
             ))}
             {/* Render current connection being drawn */}
             {currentConnection && (
-              <Line
+              <Arrow
                 points={currentConnection.points}
                 stroke="#666"
                 strokeWidth={2}
+                fill="#666"
+                pointerLength={16}
+                pointerWidth={12}
                 dash={[5, 5]}
                 lineCap="round"
                 lineJoin="round"
