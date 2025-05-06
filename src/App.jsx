@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import FlowchartDiagram from './components/FlowchartDiagram/FlowchartDiagram';
+import { FlowchartDiagram } from 'flowchart-diagram';
 import Sidebar from './components/Sidebar/Sidebar';
 
 const AppContainer = styled.div`
@@ -16,7 +16,7 @@ const Main = styled.div`
 `;
 
 function App() {
-  const [globalColor, setGlobalColor] = useState('#4a90e2');
+  const [globalColor, setGlobalColor] = useState('#fff');
 
   // Export/import handlers will be passed to FlowchartDiagram
   const [exportHandler, setExportHandler] = useState(() => () => {});
