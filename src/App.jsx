@@ -1,49 +1,41 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import FlowchartDiagram from './components/FlowchartDiagram/FlowchartDiagram';
+import Sidebar from './components/Sidebar/Sidebar';
 
 const AppContainer = styled.div`
   display: flex;
-  flex-direction: column;
   height: 100vh;
 `;
 
-const Controls = styled.div`
-  padding: 1rem;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const ColorPicker = styled.input`
-  width: 50px;
-  height: 30px;
-  padding: 0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-`;
-
-const Label = styled.label`
-  font-size: 14px;
-  color: #666;
+const Main = styled.div`
+  flex: 1;
+  background: #f5f7f8;
+  overflow: hidden;
 `;
 
 function App() {
   const [globalColor, setGlobalColor] = useState('#4a90e2');
 
+  // Export/import handlers will be passed to FlowchartDiagram
+  const [exportHandler, setExportHandler] = useState(() => () => {});
+  const [importHandler, setImportHandler] = useState(() => () => {});
+
   return (
     <AppContainer>
-      <Controls>
-        <Label>Global Color:</Label>
-        <ColorPicker
-          type="color"
-          value={globalColor}
-          onChange={(e) => setGlobalColor(e.target.value)}
+      <Sidebar
+        exportHandler={exportHandler}
+        importHandler={importHandler}
+        globalColor={globalColor}
+        setGlobalColor={setGlobalColor}
+      />
+      <Main>
+        <FlowchartDiagram
+          globalColor={globalColor}
+          setExportHandler={setExportHandler}
+          setImportHandler={setImportHandler}
         />
-      </Controls>
-      <FlowchartDiagram globalColor={globalColor} />
+      </Main>
     </AppContainer>
   );
 }

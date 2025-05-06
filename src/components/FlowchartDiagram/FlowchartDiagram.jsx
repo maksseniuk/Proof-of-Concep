@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Rect, Circle, Line, Group } from 'react-konva';
+import { Stage, Layer, Rect, Circle, Line, Group, Text } from 'react-konva';
 import styled from 'styled-components';
 import ConnectionPoints from './ConnectionPoints';
-import DiagramControls from './DiagramControls';
 
 const CanvasContainer = styled.div`
   width: 100%;
@@ -17,7 +16,25 @@ const StageContainer = styled.div`
   position: relative;
 `;
 
-const FlowchartDiagram = ({ globalColor = '#4a90e2' }) => {
+// Emoji map for card types
+const emojiMap = {
+  obj1: '🪄',
+  obj2: '🗄️',
+  obj3: '🗄️',
+  obj4: '</>',
+  obj5: '🗂️',
+  obj6: '💼',
+  obj7: '🗂️',
+};
+
+// Helper to get emoji by label
+const getEmoji = (label) => {
+  if (emojiMap[label]) return emojiMap[label];
+  // fallback
+  return '⬜️';
+};
+
+const FlowchartDiagram = ({ globalColor = '#4a90e2', setExportHandler, setImportHandler }) => {
   const [elements, setElements] = useState([]);
   const [connections, setConnections] = useState([]);
   const [selectedElement, setSelectedElement] = useState(null);
@@ -202,13 +219,18 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2' }) => {
     }
   };
 
+  // Register export/import handlers for sidebar
+  useEffect(() => {
+    if (setExportHandler) setExportHandler(() => handleExport);
+    if (setImportHandler) setImportHandler(() => handleImport);
+  }, [elements, connections]);
+
   return (
     <CanvasContainer>
-      <DiagramControls onExport={handleExport} onImport={handleImport} />
       <StageContainer>
         <Stage
-          width={window.innerWidth}
-          height={window.innerHeight - 60} // Adjust for controls height
+          width={window.innerWidth - 260} // account for sidebar width
+          height={window.innerHeight}
           ref={stageRef}
           onMouseDown={(e) => {
             if (e.target === e.target.getStage()) {
@@ -228,7 +250,6 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2' }) => {
                 strokeWidth={2}
               />
             ))}
-            
             {/* Render current connection being drawn */}
             {currentConnection && (
               <Line
@@ -238,33 +259,73 @@ const FlowchartDiagram = ({ globalColor = '#4a90e2' }) => {
                 dash={[5, 5]}
               />
             )}
-            
-            {/* Render elements */}
-            {elements.map((element) => (
-              <Group
-                key={element.id}
-                x={element.x}
-                y={element.y}
-                draggable
-                onDragMove={(e) => handleDragMove(e, element.id)}
-                onClick={() => handleElementClick(element.id)}
-                onMouseEnter={() => setHoveredElement(element.id)}
-                onMouseLeave={() => setHoveredElement(null)}
-              >
-                <Rect
-                  width={element.width}
-                  height={element.height}
-                  fill={element.color}
-                  stroke={selectedElement === element.id ? '#000' : '#666'}
-                  strokeWidth={selectedElement === element.id ? 2 : 1}
-                />
-                <ConnectionPoints
-                  element={element}
-                  onConnectionStart={handleConnectionStart}
-                  isHovered={hoveredElement === element.id}
-                />
-              </Group>
-            ))}
+            {/* Render elements as cards with emoji and label */}
+            {elements.map((element, idx) => {
+              // Determine label (obj1, obj2, ...)
+              const label = element.label || `obj${idx + 1}`;
+              const emoji = getEmoji(label);
+              return (
+                <Group
+                  key={element.id}
+                  x={element.x}
+                  y={element.y}
+                  draggable
+                  onDragMove={(e) => handleDragMove(e, element.id)}
+                  onClick={() => handleElementClick(element.id)}
+                  onMouseEnter={() => setHoveredElement(element.id)}
+                  onMouseLeave={() => setHoveredElement(null)}
+                >
+                  <Rect
+                    width={element.width}
+                    height={element.height}
+                    fill={'#fff'}
+                    stroke={selectedElement === element.id ? '#1976d2' : '#bbb'}
+                    strokeWidth={selectedElement === element.id ? 3 : 1}
+                    cornerRadius={10}
+                    shadowBlur={selectedElement === element.id ? 6 : 0}
+                  />
+                  {/* Emoji icon */}
+                  <Group>
+                    <Text
+                      text={emoji}
+                      fontSize={28}
+                      x={element.width / 2 - 14}
+                      y={element.height / 2 - 32}
+                      width={28}
+                      height={28}
+                      align="center"
+                      verticalAlign="middle"
+                    />
+                    <Text
+                      text={label}
+                      fontSize={18}
+                      x={0}
+                      y={element.height / 2}
+                      width={element.width}
+                      height={28}
+                      align="center"
+                      verticalAlign="middle"
+                      fill="#444"
+                    />
+                  </Group>
+                  {/* Blue handles for selected */}
+                  {selectedElement === element.id && (
+                    <>
+                      {/* Top, Right, Bottom, Left handles */}
+                      <Circle x={element.width / 2} y={-10} radius={6} fill="#90c2ff" />
+                      <Circle x={element.width + 10} y={element.height / 2} radius={6} fill="#90c2ff" />
+                      <Circle x={element.width / 2} y={element.height + 10} radius={6} fill="#90c2ff" />
+                      <Circle x={-10} y={element.height / 2} radius={6} fill="#90c2ff" />
+                    </>
+                  )}
+                  <ConnectionPoints
+                    element={element}
+                    onConnectionStart={handleConnectionStart}
+                    isHovered={hoveredElement === element.id}
+                  />
+                </Group>
+              );
+            })}
           </Layer>
         </Stage>
       </StageContainer>
